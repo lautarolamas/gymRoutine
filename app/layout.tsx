@@ -10,18 +10,9 @@ export const metadata: Metadata = {
   title: "Gym Routine",
   description: "Tu aplicación para gestionar rutinas de gimnasio",
   icons: {
-    icon: [
-      {
-        url: "/app/icon.png",
-        href: "/app/icon.png",
-      },
-    ],
-    apple: [
-      {
-        url: "/app/icon.png",
-        href: "/app/icon.png",
-      },
-    ],
+    icon: "/app/icon.svg",
+    shortcut: "/app/icon.svg",
+    apple: "/app/icon.svg",
   },
 };
 

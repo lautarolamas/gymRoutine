@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dumbbell, ArrowLeft, Trash2 } from "lucide-react";
+import { Dumbbell, ArrowLeft, Trash2, Download } from "lucide-react";
 import { toast } from "sonner";
 import { Routine } from "@/types/routine";
 import { supabase } from "@/lib/supabase";
@@ -15,6 +15,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { exportToPDF } from "@/lib/pdf";
 
 export default function RoutineDetail({ params }: { params: { id: string } }) {
   const router = useRouter();
@@ -98,14 +99,24 @@ export default function RoutineDetail({ params }: { params: { id: string } }) {
               <h1 className="text-2xl font-bold">{routine.name}</h1>
             </div>
           </div>
-          <Button
-            variant="destructive"
-            onClick={() => setShowDeleteConfirmation(true)}
-            className="gap-2"
-          >
-            <Trash2 className="h-4 w-4" />
-            Eliminar Rutina
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => exportToPDF(routine)}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Descargar PDF
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => setShowDeleteConfirmation(true)}
+              className="gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Eliminar Rutina
+            </Button>
+          </div>
         </div>
 
         {/* Descripción */}
