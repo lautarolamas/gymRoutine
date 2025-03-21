@@ -11,6 +11,8 @@ import {
   Moon,
   X,
   LogOut,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -67,6 +69,12 @@ export default function Home() {
   const [routineToDelete, setRoutineToDelete] = useState<string | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isLoadingRoutines, setIsLoadingRoutines] = useState(true);
+  const [showDeleteWeightConfirmation, setShowDeleteWeightConfirmation] =
+    useState(false);
+  const [weightToDelete, setWeightToDelete] = useState<string | null>(null);
+  const [showEditWeightDialog, setShowEditWeightDialog] = useState(false);
+  const [editingWeight, setEditingWeight] = useState<WeightLog | null>(null);
+  const [editWeightValue, setEditWeightValue] = useState("");
 
   const loadUserData = useCallback(async () => {
     setIsLoadingRoutines(true);
@@ -155,6 +163,63 @@ export default function Home() {
   const handleDelete = () => {
     if (!selectedRoutine) return;
     setShowDeleteConfirmation(true);
+  };
+
+  const handleDeleteWeight = async (id: string) => {
+    setWeightToDelete(id);
+    setShowDeleteWeightConfirmation(true);
+  };
+
+  const confirmDeleteWeight = async () => {
+    if (!weightToDelete) return;
+
+    try {
+      const { error } = await supabase
+        .from("weight_logs")
+        .delete()
+        .eq("id", weightToDelete);
+
+      if (error) throw error;
+
+      setWeightLogs(weightLogs.filter((log) => log.id !== weightToDelete));
+      toast.success("Registro de peso eliminado exitosamente");
+      setShowDeleteWeightConfirmation(false);
+    } catch (error) {
+      console.error("Error deleting weight log:", error);
+      toast.error("Error al eliminar el registro de peso");
+    }
+  };
+
+  const handleEditWeight = (weightLog: WeightLog) => {
+    setEditingWeight(weightLog);
+    setEditWeightValue(weightLog.weight.toString());
+    setShowEditWeightDialog(true);
+  };
+
+  const saveEditWeight = async () => {
+    if (!editingWeight || !editWeightValue) return;
+
+    try {
+      const { error } = await supabase
+        .from("weight_logs")
+        .update({ weight: parseFloat(editWeightValue) })
+        .eq("id", editingWeight.id);
+
+      if (error) throw error;
+
+      setWeightLogs(
+        weightLogs.map((log) =>
+          log.id === editingWeight.id
+            ? { ...log, weight: parseFloat(editWeightValue) }
+            : log
+        )
+      );
+      toast.success("Peso actualizado exitosamente");
+      setShowEditWeightDialog(false);
+    } catch (error) {
+      console.error("Error updating weight log:", error);
+      toast.error("Error al actualizar el peso");
+    }
   };
 
   if (loading) {
@@ -266,21 +331,109 @@ export default function Home() {
                     (a, b) =>
                       new Date(b.date).getTime() - new Date(a.date).getTime()
                   )
-                  .map((log, index) => (
+                  .map((log) => (
                     <div
-                      key={index}
+                      key={log.id}
                       className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg"
                     >
                       <span>
                         {new Date(log.date).toLocaleDateString("es-AR")}
                       </span>
-                      <span className="font-semibold">{log.weight} kg</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">{log.weight} kg</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEditWeight(log)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDeleteWeight(log.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
               </div>
             </CardContent>
           </Card>
         )}
+
+        {/* Modal de Confirmación de Eliminación de Peso */}
+        <Dialog
+          open={showDeleteWeightConfirmation}
+          onOpenChange={setShowDeleteWeightConfirmation}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirmar Eliminación</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <p className="text-muted-foreground">
+                ¿Estás seguro que deseas eliminar este registro de peso? Esta
+                acción no se puede deshacer.
+              </p>
+              <div className="flex gap-4">
+                <Button
+                  variant="destructive"
+                  onClick={confirmDeleteWeight}
+                  className="flex-1"
+                >
+                  Eliminar
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteWeightConfirmation(false)}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Modal de Edición de Peso */}
+        <Dialog
+          open={showEditWeightDialog}
+          onOpenChange={setShowEditWeightDialog}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar Peso</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="editWeight">Peso (kg)</Label>
+                <Input
+                  id="editWeight"
+                  type="number"
+                  value={editWeightValue}
+                  onChange={(e) => setEditWeightValue(e.target.value)}
+                  min="0"
+                  step="0.1"
+                />
+              </div>
+              <div className="flex gap-4">
+                <Button onClick={saveEditWeight} className="flex-1">
+                  Guardar
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowEditWeightDialog(false)}
+                  className="flex-1"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Lista de Rutinas */}
         {!selectedRoutine && (

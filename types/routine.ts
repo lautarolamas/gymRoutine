@@ -15,6 +15,8 @@ export interface Routine {
 }
 
 export interface WeightLog {
+  id: string;
   date: string;
   weight: number;
+  user_id: string;
 } 

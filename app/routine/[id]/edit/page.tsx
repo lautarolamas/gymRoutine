@@ -318,7 +318,7 @@ export default function EditRoutine({ params }: { params: { id: string } }) {
                       <div>
                         <h4 className="font-medium">{exercise.name}</h4>
                         <p className="text-sm text-muted-foreground">
-                          {exercise.sets} series x {exercise.reps} reps @{" "}
+                          {exercise.sets} series x {exercise.reps} reps -{" "}
                           {exercise.weight}kg - {exercise.day}
                         </p>
                       </div>

@@ -151,7 +151,7 @@ export default function RoutineDetail({ params }: { params: { id: string } }) {
                       >
                         <h4 className="font-medium">{exercise.name}</h4>
                         <p className="text-sm text-muted-foreground">
-                          {exercise.sets} series x {exercise.reps} reps @{" "}
+                          {exercise.sets} series x {exercise.reps} reps -{" "}
                           {exercise.weight}kg
                         </p>
                       </div>

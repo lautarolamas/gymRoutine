@@ -41,7 +41,7 @@ export const exportToPDF = (routine: Routine) => {
 
     exercises.forEach((exercise) => {
       doc.setFontSize(12);
-      const exerciseText = `${exercise.name} - ${exercise.sets} series × ${exercise.reps} reps @ ${exercise.weight}kg`;
+      const exerciseText = `${exercise.name} - ${exercise.sets} series × ${exercise.reps} reps - ${exercise.weight}kg`;
       doc.text(exerciseText, margin + 10, yPos);
       yPos += 8;
     });
