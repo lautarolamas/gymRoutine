@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Dumbbell } from "lucide-react";
 
 export function AuthForm() {
   const [email, setEmail] = useState("");
@@ -142,9 +143,13 @@ export function AuthForm() {
   return (
     <div className="w-full max-w-md mx-auto space-y-6">
       <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-bold">
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Dumbbell className="h-8 w-8 text-primary" />
+          <h1 className="text-3xl font-bold">Gym Routine</h1>
+        </div>
+        <h2 className="text-2xl font-semibold">
           {isSignUp ? "Crear cuenta" : "Iniciar sesión"}
-        </h1>
+        </h2>
         <p className="text-sm text-muted-foreground">
           {isSignUp
             ? "Ingresa tus datos para crear una cuenta"
