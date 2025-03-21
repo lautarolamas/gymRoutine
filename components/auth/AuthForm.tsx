@@ -80,12 +80,23 @@ export function AuthForm() {
           return;
         }
 
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: window.location.origin,
+          },
         });
+
         if (error) throw error;
-        toast.success("¡Registro exitoso! Por favor, verifica tu email.");
+
+        if (data?.user?.identities?.length === 0) {
+          toast.error(
+            "Este email ya está registrado. Por favor, inicia sesión."
+          );
+        } else {
+          toast.success("¡Registro exitoso! Por favor, verifica tu email.");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -124,7 +135,7 @@ export function AuthForm() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: window.location.origin + "/auth/callback",
           queryParams: {
             access_type: "offline",
             prompt: "consent",

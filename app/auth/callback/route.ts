@@ -2,37 +2,26 @@ import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get("code");
-    const error = requestUrl.searchParams.get("error");
-    const error_description = requestUrl.searchParams.get("error_description");
-
-    if (error) {
-      console.error("Error de autenticación:", error, error_description);
-      return NextResponse.redirect(
-        new URL(`/login?error=${error}&description=${error_description}`, requestUrl.origin)
-      );
-    }
+    const next = requestUrl.searchParams.get("next") ?? "/";
 
     if (code) {
-      const supabase = createRouteHandlerClient({ cookies });
-      const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-      
-      if (exchangeError) {
-        console.error("Error al intercambiar el código:", exchangeError);
-        return NextResponse.redirect(
-          new URL(`/login?error=exchange_error&description=${exchangeError.message}`, requestUrl.origin)
-        );
-      }
+      const cookieStore = cookies();
+      const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+      await supabase.auth.exchangeCodeForSession(code);
     }
 
-    return NextResponse.redirect(new URL("/", requestUrl.origin));
+    // URL to redirect to after sign in process completes
+    return NextResponse.redirect(new URL(next, requestUrl.origin));
   } catch (error) {
     console.error("Error en el callback:", error);
     return NextResponse.redirect(
-      new URL("/login?error=unknown&description=Error desconocido", request.url)
+      new URL("/login?error=auth_callback_error", request.url)
     );
   }
 } 
